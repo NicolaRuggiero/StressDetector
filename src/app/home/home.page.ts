@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import {HomeService} from './home.service';
 
 @Component({
   selector: 'app-home',
@@ -7,9 +8,13 @@ import { Component } from '@angular/core';
 })
 export class HomePage {
    text = 'default';
-  constructor() {}
+  constructor(private homeService: HomeService) {}
   onChangeText(){
     this.text = 'Changed';
+  }
+
+  ionViewWillEnter(){
+    this.homeService.fetchDataSensors;
   }
 
 }
