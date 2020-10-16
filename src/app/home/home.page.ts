@@ -6,7 +6,10 @@ import { Component } from '@angular/core';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage {
-
+   text = 'default';
   constructor() {}
+  onChangeText(){
+    this.text = 'Changed';
+  }
 
 }
