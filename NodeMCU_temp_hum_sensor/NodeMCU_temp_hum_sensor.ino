@@ -11,6 +11,15 @@ static const int DHT_SENSOR_PIN = 2;
 DHT_nonblocking dht_sensor(DHT_SENSOR_PIN, DHT_SENSOR_TYPE);
 
 ESP8266WebServer server(80);   //instantiate server at port 80 (http port)
+
+// Set your Static IP address
+IPAddress local_IP(192, 168, 1, 134);
+// Set your Gateway IP address
+IPAddress gateway(192, 168, 1, 1);
+
+IPAddress subnet(255, 255, 0, 0);
+IPAddress primaryDNS(8, 8, 8, 8);   //optional
+IPAddress secondaryDNS(8, 8, 4, 4); //optional
  
 String page = "";
 double dataT;
@@ -21,6 +30,9 @@ void setup() {
   // put your setup code here, to run once:  
   delay(1000);
   Serial.begin(115200);
+  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+  Serial.println("STA Failed to configure");
+  }
   WiFi.begin(WIFI_SSID, WIFI_PW); //begin WiFi connection
   Serial.println("");
   
