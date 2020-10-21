@@ -64,7 +64,7 @@ void setup() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   server.on("/", [](){
-    page = "<h1>Sensor to Node MCU Web Server</h1><h3>Data:</h3> <h4>HeartRate: "+String(dataHR)+" deg. C</h4> <h4>Saturation: "+String(dataSpO2)+"%</h4>";
+    page = "<h1>Sensor to Node MCU Web Server</h1><h3>Data:</h3> <h4>HeartRate: "+String(dataHR)+" bpm</h4> <h4>Saturation: "+String(dataSpO2)+"%</h4>";
     server.send(200, "text/html", page);
   });
 
@@ -194,11 +194,11 @@ void loop()
     }
     
     Serial.println();
+    dataHR = heartRate;
+    dataSpO2 = spo2;
+    server.handleClient();
     
     //After gathering 25 new samples recalculate HR and SP02
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSpO2, &heartRate, &validHeartRate);
   }
-
-  delay(1000);
-  server.handleClient();
 }
