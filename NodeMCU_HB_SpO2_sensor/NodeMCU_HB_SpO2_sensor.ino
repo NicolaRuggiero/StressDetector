@@ -7,12 +7,19 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+<<<<<<< HEAD
 #include <ESP8266HTTPClient.h>
 
+=======
+#include <FirebaseArduino.h>
+>>>>>>> 3b0d0b0056162fc562af576f3a23fac71c9966d4
 
 #include "wifi_cred.h"
 
 #define MAX_BRIGHTNESS 255
+
+#define FIREBASE_HOST "https://neptune-test-6f3db.firebaseio.com/"
+#define FIREBASE_AUTH "YMA2jcTy7I4RsJBmHfj6o2ReczyuDF1OvH8XvW4W"
 
 MAX30105 particleSensor;
 
@@ -64,6 +71,7 @@ void setup() {
   Serial.println("STA Failed to configure");
   }
   WiFi.begin(WIFI_SSID, WIFI_PW);  // begin WiFi connection
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  // connect to firebase database server
   Serial.println();
 
   while (WiFi.status() != WL_CONNECTED) 
@@ -180,6 +188,7 @@ void loop()
 
     Serial.print(F(", HRvalid="));
     Serial.print(validHeartRate, DEC);
+    String fireHR = String(heartRate) + String(" bpm");
 
     Serial.print(F(", SPO2="));
     // normalization [50, 100] ~~> [90, 100]
@@ -194,6 +203,7 @@ void loop()
     }
     
     Serial.print(spo2, DEC);
+    String firespo2 = String(spo2) + String("%");
 
     Serial.print(F(", SPO2Valid="));
     Serial.println(validSpO2, DEC);
@@ -211,6 +221,9 @@ void loop()
     dataHR = heartRate;
     dataSpO2 = spo2;
     server.handleClient();
+
+    Firebase.pushString("/MAX30102/heartRate", fireHR);
+    Firebase.pushString("/MAX30102/saturation", firespo2);
     
     //After gathering 25 new samples recalculate HR and SP02
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSpO2, &heartRate, &validHeartRate);
