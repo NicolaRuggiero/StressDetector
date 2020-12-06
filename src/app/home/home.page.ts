@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import {HomeService} from './home.service';
+import {Storage} from '@ionic/storage';
+import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 
 @Component({
   selector: 'app-home',
@@ -8,13 +10,15 @@ import {HomeService} from './home.service';
 })
 export class HomePage {
    text = 'default';
-  constructor(private homeService: HomeService) {}
+   
+  constructor(public homeService: HomeService , private storage : Storage, private splashScreen : SplashScreen) {
+  }
   onChangeText(){
     this.text = 'Changed';
   }
 
-  ionViewWillEnter(){
-    this.homeService.fetchDataSensors;
+  getDataSensors(){
+    this.homeService.fetchData().subscribe();
+    
   }
-
 }
