@@ -18,7 +18,7 @@
 
 #define MAX_BRIGHTNESS 255
 
-#define FIREBASE_HOST "https://neptune-test-6f3db.firebaseio.com/"
+#define FIREBASE_HOST "neptune-test-6f3db.firebaseio.com"
 #define FIREBASE_AUTH "YMA2jcTy7I4RsJBmHfj6o2ReczyuDF1OvH8XvW4W"
 
 MAX30105 particleSensor;
@@ -71,7 +71,7 @@ void setup() {
   Serial.println("STA Failed to configure");
   }
   WiFi.begin(WIFI_SSID, WIFI_PW);  // begin WiFi connection
-  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  // connect to firebase database server
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  // connect to firebase database server  
   Serial.println();
 
   while (WiFi.status() != WL_CONNECTED) 
@@ -222,8 +222,19 @@ void loop()
     dataSpO2 = spo2;
     server.handleClient();
 
-    Firebase.pushString("/MAX30102/heartRate", fireHR);
-    Firebase.pushString("/MAX30102/saturation", firespo2);
+    Firebase.getInt("heartRate");
+    Firebase.setInt("heartRate", heartRate);
+    if (Firebase.failed()) { 
+      Serial.print("pushing heartRate failed:"); 
+      Serial.println(Firebase.error());    
+    }
+    
+    Firebase.getInt("saturation");
+    Firebase.setInt("saturation", spo2);
+    if (Firebase.failed()) { 
+      Serial.print("pushing saturation failed:"); 
+      Serial.println(Firebase.error());    
+    }
     
     //After gathering 25 new samples recalculate HR and SP02
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSpO2, &heartRate, &validHeartRate);

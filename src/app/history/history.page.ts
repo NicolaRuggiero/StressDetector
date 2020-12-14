@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Graph } from '../graph/graph.model';
 import { HistoryService } from './history.service';
+import {ValueSensors} from '../home/valueSensors.model';
+import {Injectable} from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
 
 @Component({
   selector: 'app-history',
@@ -8,11 +13,16 @@ import { HistoryService } from './history.service';
   styleUrls: ['./history.page.scss'],
 })
 export class HistoryPage implements OnInit {
-  graphs : Graph[];
-  constructor(private historyServices : HistoryService) { }
+  displaySensors : ValueSensors[];
+  constructor( ) { }
 
-  ngOnInit() {
-    this.graphs = this.historyServices.getGraphs();
-  }
 
+  ngOnInit(){
 }
+
+passDataSensors(valueSensors : ValueSensors){
+	this.displaySensors.push(valueSensors);
+}
+}
+
+
