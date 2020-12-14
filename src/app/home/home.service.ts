@@ -16,11 +16,11 @@ export class HomeService {
 
 
   fetchData(){
-     this.httpClient.get("https://neptune-test-6f3db.firebaseio.com/saturation.json")
+      this.httpClient.get("https://neptune-ad095.firebaseio.com/saturation.json")
      .pipe(tap(resData => {
      this.saturation = (Number(resData));
      })).subscribe();
-     return this.httpClient.get("https://neptune-test-6f3db.firebaseio.com/heartRate.json")
+      return this.httpClient.get("https://neptune-ad095.firebaseio.com/heartRate.json")
      .pipe(tap(resData => {
      this.valueSensors ={date:new Date(), heartRate : Number(resData), saturation : this.saturation}
      console.log(this.valueSensors);
