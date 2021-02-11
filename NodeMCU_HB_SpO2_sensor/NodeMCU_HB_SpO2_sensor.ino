@@ -4,19 +4,20 @@
 #include "heartRate.h"
 #include "spo2_algorithm.h"
 
+#include <FirebaseESP8266.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-#include <FirebaseArduino.h>
+#include "NTPClient.h"
+#include "WiFiUdp.h"
 
 #include "wifi_cred.h"
 
 #define MAX_BRIGHTNESS 255
 
-#define FIREBASE_HOST "neptune-test-6f3db.firebaseio.com"
-#define FIREBASE_AUTH "YMA2jcTy7I4RsJBmHfj6o2ReczyuDF1OvH8XvW4W"
+#define FIREBASE_HOST "neptune-ad095.firebaseio.com"
+#define FIREBASE_AUTH "0KlpGnM2yphHuo4ON1YLpYlPQdcSdd62hnyI0mjv"
 
-MAX30105 particleSensor;
 
 //variables and arrays for the HB part
 
@@ -56,6 +57,14 @@ String page = "";
 double dataHR;
 double dataSpO2;
 
+//Date and time settings
+
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600);
+MAX30105 particleSensor;
+
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -66,13 +75,16 @@ void setup() {
   Serial.println("STA Failed to configure");
   }
   WiFi.begin(WIFI_SSID, WIFI_PW);  // begin WiFi connection
-  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  // connect to firebase database server  
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  // connect to firebase database server 
+   
+  
   Serial.println();
 
-  while (WiFi.status() != WL_CONNECTED) 
+  while (WiFi.status() != WL_CONNECTED)  
   {
     delay(500);
     Serial.print(".");
+    Serial.print(WiFi.status());
   }
 
   Serial.println();
@@ -118,7 +130,22 @@ void setup() {
 
 void loop()
 {
+  FirebaseData fireBaseData;
   bufferLength = 100; //buffer length of 100 stores 4 seconds of samples running at 25sps
+  
+  //time print
+  
+  timeClient.update();
+  Serial.print(daysOfTheWeek[timeClient.getDay()]);
+  Serial.print(", ");
+  Serial.print(timeClient.getHours());
+  Serial.print(":");
+  Serial.print(timeClient.getMinutes());
+  Serial.print(":");
+  Serial.println(timeClient.getSeconds());
+  //Serial.println(timeClient.getFormattedTime());
+
+delay(1000);
 
   //read the first 100 samples, and determine the signal range
   for (byte i = 0 ; i < bufferLength ; i++)
@@ -217,19 +244,30 @@ void loop()
     dataSpO2 = spo2;
     server.handleClient();
 
-    Firebase.getInt("heartRate");
-    Firebase.setInt("heartRate", heartRate);
-    if (Firebase.failed()) { 
-      Serial.print("pushing heartRate failed:"); 
-      Serial.println(Firebase.error());    
-    }
     
-    Firebase.getInt("saturation");
-    Firebase.setInt("saturation", spo2);
-    if (Firebase.failed()) { 
-      Serial.print("pushing saturation failed:"); 
-      Serial.println(Firebase.error());    
-    }
+    if (Firebase.set(fireBaseData, "/FirebaseIOT/saturation", spo2))
+  {
+    Serial.println("PASSED");
+    Serial.println("PATH: " + fireBaseData.dataPath());
+    Serial.println("TYPE: " + fireBaseData.dataType());
+    Serial.println("ETag: " + fireBaseData.ETag());
+    Serial.println("------------------------------------");
+    Serial.println();
+  }
+  else
+  {
+    Serial.println("FAILED");
+    Serial.println("REASON: " + fireBaseData.errorReason());
+    Serial.println("------------------------------------");
+    Serial.println();
+  }
+    
+    
+    //Firebase.setFloat("saturation", spo2);
+    //if (Firebase.failed()) { 
+      //Serial.print("pushing saturation failed:"); 
+      //Serial.println(Firebase.error());    
+    //}
     
     //After gathering 25 new samples recalculate HR and SP02
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSpO2, &heartRate, &validHeartRate);
