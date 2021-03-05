@@ -44,14 +44,7 @@ int8_t validHeartRate; //indicator to show if the heart rate calculation is vali
 
 ESP8266WebServer server(80);  // instantiate server at port 80 (http port)
 
-// Set your Static IP address
-IPAddress local_IP(192, 168, 1, 134);
-// Set your Gateway IP address
-IPAddress gateway(192, 168, 1, 1);
 
-IPAddress subnet(255, 255, 0, 0);
-IPAddress primaryDNS(8, 8, 8, 8);   //optional
-IPAddress secondaryDNS(8, 8, 4, 4); //optional
 
 String page = "";
 double dataHR;
@@ -64,6 +57,12 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600);
 MAX30105 particleSensor;
 
+FirebaseJson json1;
+FirebaseJson json2;
+FirebaseJson json3;
+FirebaseData fireBaseData;
+
+
 
 
 void setup() {
@@ -71,11 +70,30 @@ void setup() {
   Serial.begin(115200);
   // WiFi setup
   delay(1000);
-  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
-  Serial.println("STA Failed to configure");
-  }
+ // if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+  //Serial.println("STA Failed to configure");
+  //}
   WiFi.begin(WIFI_SSID, WIFI_PW);  // begin WiFi connection
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  // connect to firebase database server 
+
+  Firebase.reconnectWiFi(true);
+
+  //Set the size of WiFi rx/tx buffers in the case where we want to work with large data.
+  fireBaseData.setBSSLBufferSize(1024, 1024);
+
+  //Set the size of HTTP response buffers in the case where we want to work with large data.
+  fireBaseData.setResponseSize(1024);
+
+  //Set database read timeout to 1 minute (max 15 minutes)
+  Firebase.setReadTimeout(fireBaseData, 1000 * 60);
+  //tiny, small, medium, large and unlimited.
+  //Size and its write timeout e.g. tiny (1s), small (10s), medium (30s) and large (60s).
+  Firebase.setwriteSizeLimit(fireBaseData, "tiny");
+
+  //optional, set the decimal places for float and double data to be stored in database
+  Firebase.setFloatDigits(2);
+  Firebase.setDoubleDigits(6);
+  Firebase.setInt(fireBaseData, "/using" , 0);
    
   
   Serial.println();
@@ -108,7 +126,6 @@ void setup() {
   if(!particleSensor.begin(Wire, I2C_SPEED_FAST))  // Use default I2C port, 400kHz speed
   {
     Serial.println("MAX30105 was not found. Please check wiring/power.");
-    while(1);
   }
 
   Serial.println("Place your index finger on the sensor with steady pressure.");
@@ -130,7 +147,7 @@ void setup() {
 
 void loop()
 {
-  FirebaseData fireBaseData;
+  
   bufferLength = 100; //buffer length of 100 stores 4 seconds of samples running at 25sps
   
   //time print
@@ -245,29 +262,55 @@ delay(1000);
     server.handleClient();
 
     
-    if (Firebase.set(fireBaseData, "/FirebaseIOT/saturation", spo2))
-  {
-    Serial.println("PASSED");
-    Serial.println("PATH: " + fireBaseData.dataPath());
-    Serial.println("TYPE: " + fireBaseData.dataType());
-    Serial.println("ETag: " + fireBaseData.ETag());
-    Serial.println("------------------------------------");
-    Serial.println();
-  }
-  else
-  {
-    Serial.println("FAILED");
-    Serial.println("REASON: " + fireBaseData.errorReason());
-    Serial.println("------------------------------------");
-    Serial.println();
-  }
+
+    json1.set("child", spo2);
+    json2.set("child",heartRate);
+    
+
+    String path = daysOfTheWeek[timeClient.getDay()] ;
+
+
+    if(Firebase.getInt(fireBaseData, "/using") == 1){
+
+    
+            if (Firebase.pushJSON(fireBaseData,  path + timeClient.getHours() + ":" + timeClient.getMinutes() + "/spo2", json1))
+          {
+            Serial.println("PASSED");
+            Serial.println("PATH: " + fireBaseData.dataPath());
+            Serial.println("TYPE: " + fireBaseData.dataType());
+            Serial.println("ETag: " + fireBaseData.ETag());
+            Serial.println("------------------------------------");
+            Serial.println();
+          }
+          else
+          {
+            Serial.println("FAILED");
+            Serial.println("REASON: " + fireBaseData.errorReason());
+            Serial.println("------------------------------------");
+            Serial.println();
+          }
+             if (Firebase.pushJSON(fireBaseData, path + timeClient.getHours() + ":" + timeClient.getMinutes() + "/heartRate", json2))
+          {
+            Serial.println("PASSED");
+            Serial.println("PATH: " + fireBaseData.dataPath());
+            Serial.println("TYPE: " + fireBaseData.dataType());
+            Serial.println("ETag: " + fireBaseData.ETag());
+            Serial.println("------------------------------------");
+            Serial.println();
+          }
+          else
+          {
+            Serial.println("FAILED");
+            Serial.println("REASON: " + fireBaseData.errorReason());
+            Serial.println("------------------------------------");
+            Serial.println();
+          }
+
+    }
+
+  
     
     
-    //Firebase.setFloat("saturation", spo2);
-    //if (Firebase.failed()) { 
-      //Serial.print("pushing saturation failed:"); 
-      //Serial.println(Firebase.error());    
-    //}
     
     //After gathering 25 new samples recalculate HR and SP02
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSpO2, &heartRate, &validHeartRate);
