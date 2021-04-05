@@ -1,3 +1,7 @@
+#include <LittleFS.h>
+#include <FirebaseESP8266.h>
+
+
 #include <Wire.h>
 
 #include "MAX30105.h"
@@ -7,19 +11,19 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-<<<<<<< HEAD
+
 #include <ESP8266HTTPClient.h>
 
-=======
-#include <FirebaseArduino.h>
->>>>>>> 3b0d0b0056162fc562af576f3a23fac71c9966d4
+
+
+
 
 #include "wifi_cred.h"
 
 #define MAX_BRIGHTNESS 255
 
-#define FIREBASE_HOST "neptune-test-6f3db.firebaseio.com"
-#define FIREBASE_AUTH "YMA2jcTy7I4RsJBmHfj6o2ReczyuDF1OvH8XvW4W"
+#define FIREBASE_HOST "neptune-ad095.firebaseio.com"
+#define FIREBASE_AUTH "0KlpGnM2yphHuo4ON1YLpYlPQdcSdd62hnyI0mjv"
 
 MAX30105 particleSensor;
 
@@ -49,37 +53,45 @@ int8_t validHeartRate; //indicator to show if the heart rate calculation is vali
 ESP8266WebServer server(80);  // instantiate server at port 80 (http port)
 
 // Set your Static IP address
-IPAddress local_IP(192, 168, 1, 134);
+/*IPAddress local_IP(192, 168, 1, 134);
+
 // Set your Gateway IP address
 IPAddress gateway(192, 168, 1, 1);
 
 IPAddress subnet(255, 255, 0, 0);
 IPAddress primaryDNS(8, 8, 8, 8);   //optional
 IPAddress secondaryDNS(8, 8, 4, 4); //optional
-
+*/
 String page = "";
 double dataHR;
 double dataSpO2;
 
+FirebaseData fbdo;
+FirebaseJson json;
+
+
 
 void setup() {
+
+  
   // put your setup code here, to run once:
   Serial.begin(115200);
   // WiFi setup
   delay(1000);
-  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
-  Serial.println("STA Failed to configure");
-  }
+  //if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+  //Serial.println("STA Failed to configure");
+  //}
   WiFi.begin(WIFI_SSID, WIFI_PW);  // begin WiFi connection
-  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  // connect to firebase database server  
+    
   Serial.println();
 
   while (WiFi.status() != WL_CONNECTED) 
   {
     delay(500);
-    Serial.print(".");
+    Serial.print(WiFi.status());
   }
-
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  // connect to firebase database server
+  Firebase.reconnectWiFi(true);
   Serial.println();
   Serial.print("Connected to ");
   Serial.println(WIFI_SSID);
@@ -145,8 +157,7 @@ void loop()
   maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSpO2, &heartRate, &validHeartRate);
 
   //Continuously taking samples from MAX30102.  Heart rate and SpO2 are calculated every 1 second
-  while (1)
-  {
+  
     //dumping the first 25 sets of samples in the memory and shift the last 75 sets of samples to the top
     for (byte i = 25; i < 100; i++)
     {
@@ -222,57 +233,94 @@ void loop()
     dataSpO2 = spo2;
     server.handleClient();
 
-    Firebase.getInt("heartRate");
-    Firebase.setInt("heartRate", heartRate);
-    if (Firebase.failed()) { 
-      Serial.print("pushing heartRate failed:"); 
-      Serial.println(Firebase.error());    
-    }
     
-    Firebase.getInt("saturation");
-    Firebase.setInt("saturation", spo2);
-    if (Firebase.failed()) { 
-      Serial.print("pushing saturation failed:"); 
-      Serial.println(Firebase.error());    
-    }
     
     //After gathering 25 new samples recalculate HR and SP02
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSpO2, &heartRate, &validHeartRate);
-
-    if ((WiFi.status() == WL_CONNECTED)) {
-
-    WiFiClient client;
-    HTTPClient http;
-
-    Serial.print("[HTTP] begin...\n");
-    // configure traged server and url
-    http.begin(client, "http://192.168.134.1/postplain/"); //HTTP
-    http.addHeader("Content-Type", "application/json");
-
-    Serial.print("[HTTP] POST...\n");
-    // start connection and send HTTP header and body
-    int httpCode = http.POST("{\"hello\":\"world\"}");
-
-    // httpCode will be negative on error
-    if (httpCode > 0) {
-      // HTTP header has been send and Server response header has been handled
-      Serial.printf("[HTTP] POST... code: %d\n", httpCode);
-
-      // file found at server
-      if (httpCode == HTTP_CODE_OK) {
-        const String& payload = http.getString();
-        Serial.println("received payload:\n<<");
-        Serial.println(payload);
-        Serial.println(">>");
-      }
-    } else {
-      Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
+    if (Firebase.getInt(fbdo,  "/using" ))
+    {
+      Serial.println("PASSED");
+      Serial.println("PATH: " + fbdo.dataPath());
+      Serial.println("TYPE: " + fbdo.dataType());
+      Serial.println("ETag: " + fbdo.ETag());
+      Serial.print("VALUE: ");
+      FirebaseJson &json = fbdo.jsonObject();
+      Serial.print(fbdo.intData());
+      Serial.println("------------------------------------");
+      Serial.println();
     }
+    else
+    {
+      Serial.println("FAILED");
+      Serial.println("REASON: " + fbdo.errorReason());
+      Serial.println("------------------------------------");
+      Serial.println();
+    }
+    
+    if(fbdo.intData() == 1){
+      
+    
+      if (Firebase.pushInt(fbdo, "/heartRate", dataHR))
+      {
+        Serial.println("PASSED");
 
-    http.end();
-  }
+      
+        Serial.println("PATH: " + fbdo.dataPath());
+        Serial.print("PUSH NAME: ");
+        Serial.println(fbdo.pushName());
+        Serial.println("ETag: " + fbdo.ETag());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
+      else
+      {
+        Serial.println("FAILED");
+        Serial.println("REASON: " + fbdo.errorReason());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
 
-  delay(10000);
+
+      if (Firebase.pushInt(fbdo, "/saturation", dataSpO2))
+      {
+        Serial.println("PASSED");
+
+      
+        Serial.println("PATH: " + fbdo.dataPath());
+        Serial.print("PUSH NAME: ");
+        Serial.println(fbdo.pushName());
+        Serial.println("ETag: " + fbdo.ETag());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
+      else
+      {
+        Serial.println("FAILED");
+        Serial.println("REASON: " + fbdo.errorReason());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
+     if (Firebase.setInt(fbdo, "/using", 0))
+      {
+        Serial.println("PASSED");
+
+      
+        Serial.println("PATH: " + fbdo.dataPath());
+        Serial.print("PUSH NAME: ");
+        Serial.println(fbdo.pushName());
+        Serial.println("ETag: " + fbdo.ETag());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
+      else
+      {
+        Serial.println("FAILED");
+        Serial.println("REASON: " + fbdo.errorReason());
+        Serial.println("------------------------------------");
+        Serial.println();
+      } 
+    }  
   }
+    
   
-}
+  
