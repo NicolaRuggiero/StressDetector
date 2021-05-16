@@ -14,6 +14,9 @@
 
 #include <ESP8266HTTPClient.h>
 
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+
 
 
 
@@ -68,11 +71,158 @@ double dataSpO2;
 
 FirebaseData fbdo;
 FirebaseJson json;
+FirebaseJson json1;
+FirebaseJson json2;
+
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org");
+
+void printResult(FirebaseData &data)
+{
+
+  if (data.dataType() == "int")
+    Serial.println(data.intData());
+  else if (data.dataType() == "float")
+    Serial.println(data.floatData(), 5);
+  else if (data.dataType() == "double")
+    printf("%.9lf\n", data.doubleData());
+  else if (data.dataType() == "boolean")
+    Serial.println(data.boolData() == 1 ? "true" : "false");
+  else if (data.dataType() == "string")
+    Serial.println(data.stringData());
+  else if (data.dataType() == "json")
+  {
+    Serial.println();
+    FirebaseJson &json = data.jsonObject();
+    //Print all object data
+    Serial.println("Pretty printed JSON data:");
+    String jsonStr;
+    json.toString(jsonStr, true);
+    Serial.println(jsonStr);
+    Serial.println();
+    Serial.println("Iterate JSON data:");
+    Serial.println();
+    size_t len = json.iteratorBegin();
+    String key, value = "";
+    int type = 0;
+    for (size_t i = 0; i < len; i++)
+    {
+      json.iteratorGet(i, type, key, value);
+      Serial.print(i);
+      Serial.print(", ");
+      Serial.print("Type: ");
+      Serial.print(type == FirebaseJson::JSON_OBJECT ? "object" : "array");
+      if (type == FirebaseJson::JSON_OBJECT)
+      {
+        Serial.print(", Key: ");
+        Serial.print(key);
+      }
+      Serial.print(", Value: ");
+      Serial.println(value);
+    }
+    json.iteratorEnd();
+  }
+  else if (data.dataType() == "array")
+  {
+    Serial.println();
+    //get array data from FirebaseData using FirebaseJsonArray object
+    FirebaseJsonArray &arr = data.jsonArray();
+    //Print all array values
+    Serial.println("Pretty printed Array:");
+    String arrStr;
+    arr.toString(arrStr, true);
+    Serial.println(arrStr);
+    Serial.println();
+    Serial.println("Iterate array values:");
+    Serial.println();
+    for (size_t i = 0; i < arr.size(); i++)
+    {
+      Serial.print(i);
+      Serial.print(", Value: ");
+
+      FirebaseJsonData &jsonData = data.jsonData();
+      //Get the result data from FirebaseJsonArray object
+      arr.get(jsonData, i);
+      if (jsonData.typeNum == FirebaseJson::JSON_BOOL)
+        Serial.println(jsonData.boolValue ? "true" : "false");
+      else if (jsonData.typeNum == FirebaseJson::JSON_INT)
+        Serial.println(jsonData.intValue);
+      else if (jsonData.typeNum == FirebaseJson::JSON_FLOAT)
+        Serial.println(jsonData.floatValue);
+      else if (jsonData.typeNum == FirebaseJson::JSON_DOUBLE)
+        printf("%.9lf\n", jsonData.doubleValue);
+      else if (jsonData.typeNum == FirebaseJson::JSON_STRING ||
+               jsonData.typeNum == FirebaseJson::JSON_NULL ||
+               jsonData.typeNum == FirebaseJson::JSON_OBJECT ||
+               jsonData.typeNum == FirebaseJson::JSON_ARRAY)
+        Serial.println(jsonData.stringValue);
+    }
+  }
+  else if (data.dataType() == "blob")
+  {
+
+    Serial.println();
+
+    for (int i = 0; i < data.blobData().size(); i++)
+    {
+      if (i > 0 && i % 16 == 0)
+        Serial.println();
+
+      if (i < 16)
+        Serial.print("0");
+
+      Serial.print(data.blobData()[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
+  }
+  else if (data.dataType() == "file")
+  {
+
+    Serial.println();
+
+    File file = data.fileStream();
+    int i = 0;
+
+    while (file.available())
+    {
+      if (i > 0 && i % 16 == 0)
+        Serial.println();
+
+      int v = file.read();
+
+      if (v < 16)
+        Serial.print("0");
+
+      Serial.print(v, HEX);
+      Serial.print(" ");
+      i++;
+    }
+    Serial.println();
+    file.close();
+  }
+  else
+  {
+    Serial.println(data.payload());
+  }
+}
+
+struct Sensors_polling{
+  int saturation;
+  int heartRate;
+  String date;
+};
 
 
 
 void setup() {
 
+ timeClient.begin();
+
+ 
+
+ 
   
   // put your setup code here, to run once:
   Serial.begin(115200);
@@ -135,6 +285,31 @@ void setup() {
 
 void loop()
 {
+
+   timeClient.update();
+   unsigned long epochTime = timeClient.getEpochTime();
+   Serial.print("Epoch Time: ");
+   Serial.println(epochTime);
+
+   Serial.println(timeClient.getFormattedTime());
+
+   delay(1000);
+   
+   struct tm *ptm = gmtime ((time_t *)&epochTime);
+   int monthDay = ptm->tm_mday;
+   Serial.print("Month day: ");
+   Serial.println(monthDay);
+
+   int currentMonth = ptm->tm_mon+1;
+   Serial.print("Month: ");
+   Serial.println(currentMonth);
+
+   int currentHour = ptm->tm_hour;
+   Serial.print("the current hour is:");
+   Serial.println(currentHour);
+
+  String firebase_date = String(currentMonth) + "/" + String(monthDay) + "/" + String(currentHour);
+
   bufferLength = 100; //buffer length of 100 stores 4 seconds of samples running at 25sps
 
   //read the first 100 samples, and determine the signal range
@@ -233,6 +408,10 @@ void loop()
     dataSpO2 = spo2;
     server.handleClient();
 
+    Sensors_polling sensors_value = {spo2 , dataHR , firebase_date};
+
+    
+
     
     
     //After gathering 25 new samples recalculate HR and SP02
@@ -244,7 +423,7 @@ void loop()
       Serial.println("TYPE: " + fbdo.dataType());
       Serial.println("ETag: " + fbdo.ETag());
       Serial.print("VALUE: ");
-      FirebaseJson &json = fbdo.jsonObject();
+      FirebaseJson json = fbdo.jsonObject();
       Serial.print(fbdo.intData());
       Serial.println("------------------------------------");
       Serial.println();
@@ -260,28 +439,33 @@ void loop()
     if(fbdo.intData() == 1){
       
     
-      if (Firebase.pushInt(fbdo, "/heartRate", dataHR))
-      {
-        Serial.println("PASSED");
+      json1.set("Data" ,dataHR );
+      json2.set("Data", dataSpO2);
 
-      
-        Serial.println("PATH: " + fbdo.dataPath());
-        Serial.print("PUSH NAME: ");
-        Serial.println(fbdo.pushName());
-        Serial.println("ETag: " + fbdo.ETag());
-        Serial.println("------------------------------------");
-        Serial.println();
-      }
-      else
-      {
-        Serial.println("FAILED");
-        Serial.println("REASON: " + fbdo.errorReason());
-        Serial.println("------------------------------------");
-        Serial.println();
-      }
+    if (Firebase.updateNode(fbdo, "/heartRate", json1))
+    {
+      Serial.println("PASSED");
+      Serial.println("PATH: " + fbdo.dataPath());
+      Serial.println("TYPE: " + fbdo.dataType());
+      //No ETag available
+      Serial.print("VALUE: ");
+      printResult(fbdo);
+      Serial.println("------------------------------------");
+      Serial.println();
+    }
+    else
+    {
+      Serial.println("FAILED");
+      Serial.println("REASON: " + fbdo.errorReason());
+      Serial.println("------------------------------------");
+      Serial.println();
+    }
+  
 
 
-      if (Firebase.pushInt(fbdo, "/saturation", dataSpO2))
+
+
+      if (Firebase.updateNode(fbdo, "/saturation", json2))
       {
         Serial.println("PASSED");
 
@@ -318,9 +502,13 @@ void loop()
         Serial.println("REASON: " + fbdo.errorReason());
         Serial.println("------------------------------------");
         Serial.println();
-      } 
-    }  
-  }
+      }
+    }
+  
+  
+  }   
+   
+  
     
   
   
