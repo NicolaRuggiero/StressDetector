@@ -216,6 +216,8 @@ struct Sensors_polling{
 
 
 
+
+
 void setup() {
 
  timeClient.begin();
@@ -285,7 +287,7 @@ void setup() {
 
 void loop()
 {
-
+   int currentSize_firebase;
    timeClient.update();
    unsigned long epochTime = timeClient.getEpochTime();
    Serial.print("Epoch Time: ");
@@ -410,6 +412,27 @@ void loop()
 
     Sensors_polling sensors_value = {spo2 , dataHR , firebase_date};
 
+    if (Firebase.getInt(fbdo,  "/size" ))
+    {
+      Serial.println("PASSED");
+      Serial.println("PATH: " + fbdo.dataPath());
+      Serial.println("TYPE: " + fbdo.dataType());
+      Serial.println("ETag: " + fbdo.ETag());
+      Serial.print("VALUE: ");
+      FirebaseJson json = fbdo.jsonObject();
+      Serial.print(fbdo.intData());
+      Serial.println("------------------------------------");
+      Serial.println();
+    }
+    else
+    {
+      Serial.println("FAILED");
+      Serial.println("REASON: " + fbdo.errorReason());
+      Serial.println("------------------------------------");
+      Serial.println();
+    }
+
+    currentSize_firebase = fbdo.intData();
     
 
     
@@ -442,7 +465,7 @@ void loop()
       json1.set("Data" ,dataHR );
       json2.set("Data", dataSpO2);
 
-    if (Firebase.updateNode(fbdo, "/heartRate", json1))
+    if (Firebase.updateNode(fbdo, "/" + String(currentSize_firebase) + "/heartRate", json1))
     {
       Serial.println("PASSED");
       Serial.println("PATH: " + fbdo.dataPath());
@@ -465,7 +488,7 @@ void loop()
 
 
 
-      if (Firebase.updateNode(fbdo, "/saturation", json2))
+      if (Firebase.updateNode(fbdo, "/" + String(currentSize_firebase) + "/saturation", json2))
       {
         Serial.println("PASSED");
 
@@ -503,6 +526,26 @@ void loop()
         Serial.println("------------------------------------");
         Serial.println();
       }
+      if (Firebase.setInt(fbdo, "/size", currentSize_firebase + 1))
+      {
+        Serial.println("PASSED");
+
+      
+        Serial.println("PATH: " + fbdo.dataPath());
+        Serial.print("PUSH NAME: ");
+        Serial.println(fbdo.pushName());
+        Serial.println("ETag: " + fbdo.ETag());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
+      else
+      {
+        Serial.println("FAILED");
+        Serial.println("REASON: " + fbdo.errorReason());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
+      
     }
   
   
