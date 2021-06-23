@@ -412,7 +412,7 @@ void loop()
 
     Sensors_polling sensors_value = {spo2 , dataHR , firebase_date};
 
-    if (Firebase.getInt(fbdo,  "/size" ))
+    /* if (Firebase.getInt(fbdo,  "/size" ))
     {
       Serial.println("PASSED");
       Serial.println("PATH: " + fbdo.dataPath());
@@ -433,12 +433,12 @@ void loop()
     }
 
     currentSize_firebase = fbdo.intData();
-    
+    */
 
     
     
     //After gathering 25 new samples recalculate HR and SP02
-    maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSpO2, &heartRate, &validHeartRate);
+   // maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSpO2, &heartRate, &validHeartRate);
     if (Firebase.getInt(fbdo,  "/using" ))
     {
       Serial.println("PASSED");
@@ -450,6 +450,7 @@ void loop()
       Serial.print(fbdo.intData());
       Serial.println("------------------------------------");
       Serial.println();
+      
     }
     else
     {
@@ -459,13 +460,15 @@ void loop()
       Serial.println();
     }
     
+    
     if(fbdo.intData() == 1){
-      
+       
     
       json1.set("Data" ,dataHR );
       json2.set("Data", dataSpO2);
+      
 
-    if (Firebase.updateNode(fbdo, "/" + String(currentSize_firebase) + "/heartRate", json1))
+    if (Firebase.updateNode(fbdo,   String(currentMonth) + String(monthDay) +  "/heartRate", json1))
     {
       Serial.println("PASSED");
       Serial.println("PATH: " + fbdo.dataPath());
@@ -488,7 +491,7 @@ void loop()
 
 
 
-      if (Firebase.updateNode(fbdo, "/" + String(currentSize_firebase) + "/saturation", json2))
+      if (Firebase.updateNode(fbdo,  String(currentMonth) + String(monthDay) +   "/saturation", json2))
       {
         Serial.println("PASSED");
 
