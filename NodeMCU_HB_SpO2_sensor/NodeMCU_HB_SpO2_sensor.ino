@@ -70,7 +70,7 @@ double dataHR;
 double dataSpO2;
 
 FirebaseData fbdo;
-FirebaseJson json;
+// FirebaseJson json;
 FirebaseJson json1;
 FirebaseJson json2;
 
@@ -556,5 +556,6 @@ void loop()
    
   
     
-  
+  // TODO check global variables for fbdo and json variables, and and their initialization
+
   
