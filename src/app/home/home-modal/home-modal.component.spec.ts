@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { GraphComponent } from './graph.component';
+import { HomeModalComponent } from './home-modal.component';
 
-describe('GraphComponent', () => {
-  let component: GraphComponent;
-  let fixture: ComponentFixture<GraphComponent>;
+describe('HomeModalComponent', () => {
+  let component: HomeModalComponent;
+  let fixture: ComponentFixture<HomeModalComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ GraphComponent ],
+      declarations: [ HomeModalComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(GraphComponent);
+    fixture = TestBed.createComponent(HomeModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

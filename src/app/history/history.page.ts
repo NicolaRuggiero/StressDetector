@@ -13,16 +13,14 @@ import {Injectable} from '@angular/core';
   styleUrls: ['./history.page.scss'],
 })
 export class HistoryPage implements OnInit {
-  displaySensors : ValueSensors[];
+  Sensors : ValueSensors[];
   constructor( ) { }
 
 
   ngOnInit(){
 }
 
-passDataSensors(valueSensors : ValueSensors){
-	this.displaySensors.push(valueSensors);
-}
+
 }
 
 
