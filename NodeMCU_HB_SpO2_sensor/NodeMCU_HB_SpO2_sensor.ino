@@ -557,5 +557,6 @@ void loop()
    
   
     
-  
+  // TODO check global variables for fbdo and json variables, and and their initialization
+
   
