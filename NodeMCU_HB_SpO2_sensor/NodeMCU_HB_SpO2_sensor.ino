@@ -1,3 +1,7 @@
+#include <LittleFS.h>
+#include <FirebaseESP8266.h>
+
+
 #include <Wire.h>
 
 #include "MAX30105.h"
@@ -7,19 +11,22 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-<<<<<<< HEAD
+
 #include <ESP8266HTTPClient.h>
 
-=======
-#include <FirebaseArduino.h>
->>>>>>> 3b0d0b0056162fc562af576f3a23fac71c9966d4
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+
+
+
+
 
 #include "wifi_cred.h"
 
 #define MAX_BRIGHTNESS 255
 
-#define FIREBASE_HOST "neptune-test-6f3db.firebaseio.com"
-#define FIREBASE_AUTH "YMA2jcTy7I4RsJBmHfj6o2ReczyuDF1OvH8XvW4W"
+#define FIREBASE_HOST "neptune-ad095.firebaseio.com"
+#define FIREBASE_AUTH "0KlpGnM2yphHuo4ON1YLpYlPQdcSdd62hnyI0mjv"
 
 MAX30105 particleSensor;
 
@@ -49,37 +56,194 @@ int8_t validHeartRate; //indicator to show if the heart rate calculation is vali
 ESP8266WebServer server(80);  // instantiate server at port 80 (http port)
 
 // Set your Static IP address
-IPAddress local_IP(192, 168, 1, 134);
+/*IPAddress local_IP(192, 168, 1, 134);
+
 // Set your Gateway IP address
 IPAddress gateway(192, 168, 1, 1);
 
 IPAddress subnet(255, 255, 0, 0);
 IPAddress primaryDNS(8, 8, 8, 8);   //optional
 IPAddress secondaryDNS(8, 8, 4, 4); //optional
-
+*/
 String page = "";
 double dataHR;
 double dataSpO2;
 
+FirebaseData fbdo;
+// FirebaseJson json;
+FirebaseJson json1;
+FirebaseJson json2;
+
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org");
+
+void printResult(FirebaseData &data)
+{
+
+  if (data.dataType() == "int")
+    Serial.println(data.intData());
+  else if (data.dataType() == "float")
+    Serial.println(data.floatData(), 5);
+  else if (data.dataType() == "double")
+    printf("%.9lf\n", data.doubleData());
+  else if (data.dataType() == "boolean")
+    Serial.println(data.boolData() == 1 ? "true" : "false");
+  else if (data.dataType() == "string")
+    Serial.println(data.stringData());
+  else if (data.dataType() == "json")
+  {
+    Serial.println();
+    FirebaseJson &json = data.jsonObject();
+    //Print all object data
+    Serial.println("Pretty printed JSON data:");
+    String jsonStr;
+    json.toString(jsonStr, true);
+    Serial.println(jsonStr);
+    Serial.println();
+    Serial.println("Iterate JSON data:");
+    Serial.println();
+    size_t len = json.iteratorBegin();
+    String key, value = "";
+    int type = 0;
+    for (size_t i = 0; i < len; i++)
+    {
+      json.iteratorGet(i, type, key, value);
+      Serial.print(i);
+      Serial.print(", ");
+      Serial.print("Type: ");
+      Serial.print(type == FirebaseJson::JSON_OBJECT ? "object" : "array");
+      if (type == FirebaseJson::JSON_OBJECT)
+      {
+        Serial.print(", Key: ");
+        Serial.print(key);
+      }
+      Serial.print(", Value: ");
+      Serial.println(value);
+    }
+    json.iteratorEnd();
+  }
+  else if (data.dataType() == "array")
+  {
+    Serial.println();
+    //get array data from FirebaseData using FirebaseJsonArray object
+    FirebaseJsonArray &arr = data.jsonArray();
+    //Print all array values
+    Serial.println("Pretty printed Array:");
+    String arrStr;
+    arr.toString(arrStr, true);
+    Serial.println(arrStr);
+    Serial.println();
+    Serial.println("Iterate array values:");
+    Serial.println();
+    for (size_t i = 0; i < arr.size(); i++)
+    {
+      Serial.print(i);
+      Serial.print(", Value: ");
+
+      FirebaseJsonData &jsonData = data.jsonData();
+      //Get the result data from FirebaseJsonArray object
+      arr.get(jsonData, i);
+      if (jsonData.typeNum == FirebaseJson::JSON_BOOL)
+        Serial.println(jsonData.boolValue ? "true" : "false");
+      else if (jsonData.typeNum == FirebaseJson::JSON_INT)
+        Serial.println(jsonData.intValue);
+      else if (jsonData.typeNum == FirebaseJson::JSON_FLOAT)
+        Serial.println(jsonData.floatValue);
+      else if (jsonData.typeNum == FirebaseJson::JSON_DOUBLE)
+        printf("%.9lf\n", jsonData.doubleValue);
+      else if (jsonData.typeNum == FirebaseJson::JSON_STRING ||
+               jsonData.typeNum == FirebaseJson::JSON_NULL ||
+               jsonData.typeNum == FirebaseJson::JSON_OBJECT ||
+               jsonData.typeNum == FirebaseJson::JSON_ARRAY)
+        Serial.println(jsonData.stringValue);
+    }
+  }
+  else if (data.dataType() == "blob")
+  {
+
+    Serial.println();
+
+    for (int i = 0; i < data.blobData().size(); i++)
+    {
+      if (i > 0 && i % 16 == 0)
+        Serial.println();
+
+      if (i < 16)
+        Serial.print("0");
+
+      Serial.print(data.blobData()[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
+  }
+  else if (data.dataType() == "file")
+  {
+
+    Serial.println();
+
+    File file = data.fileStream();
+    int i = 0;
+
+    while (file.available())
+    {
+      if (i > 0 && i % 16 == 0)
+        Serial.println();
+
+      int v = file.read();
+
+      if (v < 16)
+        Serial.print("0");
+
+      Serial.print(v, HEX);
+      Serial.print(" ");
+      i++;
+    }
+    Serial.println();
+    file.close();
+  }
+  else
+  {
+    Serial.println(data.payload());
+  }
+}
+
+struct Sensors_polling{
+  int saturation;
+  int heartRate;
+  String date;
+};
+
+
+
+
 
 void setup() {
+
+ timeClient.begin();
+
+ 
+
+ 
+  
   // put your setup code here, to run once:
   Serial.begin(115200);
   // WiFi setup
   delay(1000);
-  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
-  Serial.println("STA Failed to configure");
-  }
+  //if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+  //Serial.println("STA Failed to configure");
+  //}
   WiFi.begin(WIFI_SSID, WIFI_PW);  // begin WiFi connection
-  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  // connect to firebase database server  
+    
   Serial.println();
 
   while (WiFi.status() != WL_CONNECTED) 
   {
     delay(500);
-    Serial.print(".");
+    Serial.print(WiFi.status());
   }
-
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);  // connect to firebase database server
+  Firebase.reconnectWiFi(true);
   Serial.println();
   Serial.print("Connected to ");
   Serial.println(WIFI_SSID);
@@ -123,6 +287,31 @@ void setup() {
 
 void loop()
 {
+   int currentSize_firebase;
+   timeClient.update();
+   unsigned long epochTime = timeClient.getEpochTime();
+   Serial.print("Epoch Time: ");
+   Serial.println(epochTime);
+
+   Serial.println(timeClient.getFormattedTime());
+
+   delay(1000);
+   
+   struct tm *ptm = gmtime ((time_t *)&epochTime);
+   int monthDay = ptm->tm_mday;
+   Serial.print("Month day: ");
+   Serial.println(monthDay);
+
+   int currentMonth = ptm->tm_mon+1;
+   Serial.print("Month: ");
+   Serial.println(currentMonth);
+
+   int currentHour = ptm->tm_hour;
+   Serial.print("the current hour is:");
+   Serial.println(currentHour);
+
+  String firebase_date = String(currentMonth) + "/" + String(monthDay) + "/" + String(currentHour);
+
   bufferLength = 100; //buffer length of 100 stores 4 seconds of samples running at 25sps
 
   //read the first 100 samples, and determine the signal range
@@ -145,8 +334,7 @@ void loop()
   maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSpO2, &heartRate, &validHeartRate);
 
   //Continuously taking samples from MAX30102.  Heart rate and SpO2 are calculated every 1 second
-  while (1)
-  {
+  
     //dumping the first 25 sets of samples in the memory and shift the last 75 sets of samples to the top
     for (byte i = 25; i < 100; i++)
     {
@@ -222,57 +410,152 @@ void loop()
     dataSpO2 = spo2;
     server.handleClient();
 
-    Firebase.getInt("heartRate");
-    Firebase.setInt("heartRate", heartRate);
-    if (Firebase.failed()) { 
-      Serial.print("pushing heartRate failed:"); 
-      Serial.println(Firebase.error());    
+    Sensors_polling sensors_value = {spo2 , dataHR , firebase_date};
+
+    /* if (Firebase.getInt(fbdo,  "/size" ))
+    {
+      Serial.println("PASSED");
+      Serial.println("PATH: " + fbdo.dataPath());
+      Serial.println("TYPE: " + fbdo.dataType());
+      Serial.println("ETag: " + fbdo.ETag());
+      Serial.print("VALUE: ");
+      FirebaseJson json = fbdo.jsonObject();
+      Serial.print(fbdo.intData());
+      Serial.println("------------------------------------");
+      Serial.println();
     }
+    else
+    {
+      Serial.println("FAILED");
+      Serial.println("REASON: " + fbdo.errorReason());
+      Serial.println("------------------------------------");
+      Serial.println();
+    }
+
+    currentSize_firebase = fbdo.intData();
+    */
+
     
-    Firebase.getInt("saturation");
-    Firebase.setInt("saturation", spo2);
-    if (Firebase.failed()) { 
-      Serial.print("pushing saturation failed:"); 
-      Serial.println(Firebase.error());    
-    }
     
     //After gathering 25 new samples recalculate HR and SP02
-    maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSpO2, &heartRate, &validHeartRate);
-
-    if ((WiFi.status() == WL_CONNECTED)) {
-
-    WiFiClient client;
-    HTTPClient http;
-
-    Serial.print("[HTTP] begin...\n");
-    // configure traged server and url
-    http.begin(client, "http://192.168.134.1/postplain/"); //HTTP
-    http.addHeader("Content-Type", "application/json");
-
-    Serial.print("[HTTP] POST...\n");
-    // start connection and send HTTP header and body
-    int httpCode = http.POST("{\"hello\":\"world\"}");
-
-    // httpCode will be negative on error
-    if (httpCode > 0) {
-      // HTTP header has been send and Server response header has been handled
-      Serial.printf("[HTTP] POST... code: %d\n", httpCode);
-
-      // file found at server
-      if (httpCode == HTTP_CODE_OK) {
-        const String& payload = http.getString();
-        Serial.println("received payload:\n<<");
-        Serial.println(payload);
-        Serial.println(">>");
-      }
-    } else {
-      Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
+   // maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSpO2, &heartRate, &validHeartRate);
+    if (Firebase.getInt(fbdo,  "/using" ))
+    {
+      Serial.println("PASSED");
+      Serial.println("PATH: " + fbdo.dataPath());
+      Serial.println("TYPE: " + fbdo.dataType());
+      Serial.println("ETag: " + fbdo.ETag());
+      Serial.print("VALUE: ");
+      FirebaseJson json = fbdo.jsonObject();
+      Serial.print(fbdo.intData());
+      Serial.println("------------------------------------");
+      Serial.println();
+      
     }
+    else
+    {
+      Serial.println("FAILED");
+      Serial.println("REASON: " + fbdo.errorReason());
+      Serial.println("------------------------------------");
+      Serial.println();
+    }
+    
+    
+    if(fbdo.intData() == 1){
+       
+    
+      json1.set("Data" ,dataHR );
+      json2.set("Data", dataSpO2);
+      
 
-    http.end();
-  }
-
-  delay(10000);
-  }
+    if (Firebase.updateNode(fbdo,   String(currentMonth) + String(monthDay) +  "/heartRate", json1))
+    {
+      Serial.println("PASSED");
+      Serial.println("PATH: " + fbdo.dataPath());
+      Serial.println("TYPE: " + fbdo.dataType());
+      //No ETag available
+      Serial.print("VALUE: ");
+      printResult(fbdo);
+      Serial.println("------------------------------------");
+      Serial.println();
+    }
+    else
+    {
+      Serial.println("FAILED");
+      Serial.println("REASON: " + fbdo.errorReason());
+      Serial.println("------------------------------------");
+      Serial.println();
+    }
   
-}
+
+
+
+
+      if (Firebase.updateNode(fbdo,  String(currentMonth) + String(monthDay) +   "/saturation", json2))
+      {
+        Serial.println("PASSED");
+
+      
+        Serial.println("PATH: " + fbdo.dataPath());
+        Serial.print("PUSH NAME: ");
+        Serial.println(fbdo.pushName());
+        Serial.println("ETag: " + fbdo.ETag());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
+      else
+      {
+        Serial.println("FAILED");
+        Serial.println("REASON: " + fbdo.errorReason());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
+     if (Firebase.setInt(fbdo, "/using", 0))
+      {
+        Serial.println("PASSED");
+
+      
+        Serial.println("PATH: " + fbdo.dataPath());
+        Serial.print("PUSH NAME: ");
+        Serial.println(fbdo.pushName());
+        Serial.println("ETag: " + fbdo.ETag());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
+      else
+      {
+        Serial.println("FAILED");
+        Serial.println("REASON: " + fbdo.errorReason());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
+      if (Firebase.setInt(fbdo, "/size", currentSize_firebase + 1))
+      {
+        Serial.println("PASSED");
+
+      
+        Serial.println("PATH: " + fbdo.dataPath());
+        Serial.print("PUSH NAME: ");
+        Serial.println(fbdo.pushName());
+        Serial.println("ETag: " + fbdo.ETag());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
+      else
+      {
+        Serial.println("FAILED");
+        Serial.println("REASON: " + fbdo.errorReason());
+        Serial.println("------------------------------------");
+        Serial.println();
+      }
+      
+    }
+  
+  
+  }   
+   
+  
+    
+  // TODO check global variables for fbdo and json variables, and and their initialization
+
+  
