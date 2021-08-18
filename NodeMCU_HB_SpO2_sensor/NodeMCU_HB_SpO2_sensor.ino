@@ -70,7 +70,7 @@ double dataHR;
 double dataSpO2;
 
 FirebaseData fbdo;
-FirebaseJson json;
+//FirebaseJson json;
 FirebaseJson json1;
 FirebaseJson json2;
 
@@ -295,7 +295,7 @@ void loop()
 
    Serial.println(timeClient.getFormattedTime());
 
-   delay(1000);
+   
    
    struct tm *ptm = gmtime ((time_t *)&epochTime);
    int monthDay = ptm->tm_mday;
@@ -412,14 +412,15 @@ void loop()
 
     Sensors_polling sensors_value = {spo2 , dataHR , firebase_date};
 
-    /* if (Firebase.getInt(fbdo,  "/size" ))
+     
+     if (Firebase.getInt(fbdo,  "/size" ))
     {
       Serial.println("PASSED");
       Serial.println("PATH: " + fbdo.dataPath());
       Serial.println("TYPE: " + fbdo.dataType());
       Serial.println("ETag: " + fbdo.ETag());
       Serial.print("VALUE: ");
-      FirebaseJson json = fbdo.jsonObject();
+      //FirebaseJson json = fbdo.jsonObject();
       Serial.print(fbdo.intData());
       Serial.println("------------------------------------");
       Serial.println();
@@ -431,9 +432,9 @@ void loop()
       Serial.println("------------------------------------");
       Serial.println();
     }
-
+    
     currentSize_firebase = fbdo.intData();
-    */
+    
 
     
     
@@ -446,7 +447,7 @@ void loop()
       Serial.println("TYPE: " + fbdo.dataType());
       Serial.println("ETag: " + fbdo.ETag());
       Serial.print("VALUE: ");
-      FirebaseJson json = fbdo.jsonObject();
+      FirebaseJson json1 = fbdo.jsonObject();
       Serial.print(fbdo.intData());
       Serial.println("------------------------------------");
       Serial.println();
@@ -468,14 +469,14 @@ void loop()
       json2.set("Data", dataSpO2);
       
 
-    if (Firebase.updateNode(fbdo,   String(currentMonth) + String(monthDay) +  "/heartRate", json1))
+    if (Firebase.updateNode(fbdo, "heartRate/" +  String(currentSize_firebase + 1), json1))
     {
       Serial.println("PASSED");
       Serial.println("PATH: " + fbdo.dataPath());
       Serial.println("TYPE: " + fbdo.dataType());
       //No ETag available
       Serial.print("VALUE: ");
-      printResult(fbdo);
+      //printResult(fbdo);
       Serial.println("------------------------------------");
       Serial.println();
     }
@@ -491,7 +492,7 @@ void loop()
 
 
 
-      if (Firebase.updateNode(fbdo,  String(currentMonth) + String(monthDay) +   "/saturation", json2))
+      if (Firebase.updateNode(fbdo,  "saturation/" +  String(currentSize_firebase + 1), json2))
       {
         Serial.println("PASSED");
 
