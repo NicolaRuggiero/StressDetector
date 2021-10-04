@@ -5,7 +5,7 @@ import {map , tap} from 'rxjs/operators';
 import {ValueSensors} from './valueSensors.model' ;
 import { ModalController } from '@ionic/angular';
 import { HomeModalComponent } from './home-modal/home-modal.component';
-import { IonicStorageModule } from '@ionic/storage-angular';
+import { Storage } from '@ionic/storage';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +14,7 @@ export class HomeService {
     valueSensors: ValueSensors;
     age: number;
     saturation: number;
+    size : any;
     constructor(private httpClient: HttpClient, public modalController: ModalController, public storage: Storage) { };
 
 
@@ -34,11 +35,21 @@ export class HomeService {
 
 
   fetchData(){
-      this.httpClient.get("https://neptune-ad095.firebaseio.com/saturation/Data.json")
+
+       this.httpClient.get("https://neptune-ad095.firebaseio.com/size.json")
+     .pipe(tap(resData => {
+     this.size = (Number(resData));
+     })).subscribe();
+
+     this.size = String(this.size);
+     console.log("this is the size of database:" + this.size);
+
+      this.httpClient.get("https://neptune-ad095.firebaseio.com/saturation/" + this.size + "/Data.json")
      .pipe(tap(resData => {
      this.saturation = (Number(resData));
      })).subscribe();
-      return this.httpClient.get("https://neptune-ad095.firebaseio.com/heartRate/Data.json")
+
+      return this.httpClient.get("https://neptune-ad095.firebaseio.com/heartRate/" + this.size + "/Data.json" )
      .pipe(tap(resData => {
      this.valueSensors ={date:new Date(), heartRate : Number(resData), saturation : this.saturation}
          console.log(this.valueSensors);
