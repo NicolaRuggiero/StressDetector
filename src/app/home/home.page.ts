@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import {HomeService} from './home.service';
-import {Storage} from '@ionic/storage';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
+
+
+
 
 @Component({
   selector: 'app-home',
@@ -9,16 +10,18 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage {
-   text = 'default';
+    text = 'default';
+    age: number;
    
-  constructor(public homeService: HomeService , private storage : Storage, private splashScreen : SplashScreen) {
+  constructor(public homeService: HomeService ) {
   }
   onChangeText(){
     this.text = 'Changed';
   }
 
   getDataSensors(){
-    this.homeService.fetchData().subscribe();
-    
-  }
+      this.homeService.fetchData().subscribe();
+      this.homeService.presentModal();
+      this.homeService.setAge(this.age);
+    }
 }
