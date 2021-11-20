@@ -4,6 +4,7 @@ import {ValueSensors} from '../home/valueSensors.model';
 import {Injectable} from '@angular/core';
 import * as HighCharts from 'highcharts';
 import { HttpClient } from '@angular/common/http';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +33,7 @@ ionViewDidEnter() {
      this.size = (Number(resData));
      })).subscribe();
 
-     for(number i =0; i<this.size; i++){
+     for(let i=0; i<this.size; i++){
         this.httpClient.get("https://neptune-ad095.firebaseio.com/saturation/" + i + "/Data.json")
         .pipe(tap(resData => {
         this.size = (Number(resData));
