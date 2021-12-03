@@ -6,6 +6,7 @@ import {ValueSensors} from './valueSensors.model' ;
 import { ModalController } from '@ionic/angular';
 import { HomeModalComponent } from './home-modal/home-modal.component';
 import { Storage } from '@ionic/storage';
+import { AngularFireDatabase} from '@angular/fire/compat/database';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +14,11 @@ import { Storage } from '@ionic/storage';
 export class HomeService {
     valueSensors: ValueSensors;
     age: number;
-    saturation: number;
+    saturation: any;
+    heartRate:any;
     size : any;
-    constructor(private httpClient: HttpClient, public modalController: ModalController, public storage: Storage) { };
+    item: Observable<any>
+    constructor(private httpClient: HttpClient, public modalController: ModalController, public storage: Storage, private db: AngularFireDatabase) { };
 
 
     setAge(age: number) {
@@ -36,27 +39,22 @@ export class HomeService {
 
   fetchData(){
 
-       this.httpClient.get("https://neptune-ad095.firebaseio.com/size.json")
-     .pipe(tap(resData => {
-     this.size = (Number(resData));
-     })).subscribe();
+    this.db.object('size/').valueChanges().subscribe(res => {
+        this.size=Number(res);
+      })
 
      this.size = String(this.size);
      console.log("this is the size of database:" + this.size);
 
-      this.httpClient.get("https://neptune-ad095.firebaseio.com/saturation/" + this.size + "/Data.json")
-     .pipe(tap(resData => {
-     this.saturation = (Number(resData));
-     })).subscribe();
-
-      return this.httpClient.get("https://neptune-ad095.firebaseio.com/heartRate/" + this.size + "/Data.json" )
-     .pipe(tap(resData => {
-     this.valueSensors ={date:new Date(), heartRate : Number(resData), saturation : this.saturation}
-         console.log(this.valueSensors);
-         this.setData(String(this.valueSensors.date.getDate) + String(this.valueSensors.date.getMonth), this.valueSensors);
-     }))
-
+     this.db.object('saturation/' + this.size + '/Data').valueChanges().subscribe(res => {
+        this.saturation=Number(res);
+      })
+      this.db.object('heartRate/' + this.size + '/Data').valueChanges().subscribe(res => {
+        this.heartRate=Number(res);
+      })
           ;
+          this.valueSensors.saturation= this.saturation;
+          this.valueSensors.heartRate = this.heartRate;
     }
 
 
