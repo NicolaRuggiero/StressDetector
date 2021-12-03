@@ -37,7 +37,6 @@
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
-<<<<<<< HEAD
     "@angular-devkit/build-angular": "^0.1100.2",
     "@angular/cli": "11.2.14",
     "@angular/compiler": "~11.2.8",
@@ -45,15 +44,6 @@
     "@angular/language-service": "~11.2.8",
     "@capacitor/cli": "2.4.1",
     "@ionic/angular-toolkit": "^2.3.0",
-=======
-    "@angular-devkit/build-angular": "^0.8.7",
-    "@angular/cli": "^13.0.3",
-    "@angular/compiler": "~13.0.2",
-    "@angular/compiler-cli": "~13.0.2",
-    "@angular/language-service": "~13.0.2",
-    "@capacitor/cli": "^3.3.2",
-    "@ionic/angular-toolkit": "^5.0.0",
->>>>>>> 4c15a157396cbbde500adcc998379e222d44a716
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^12.11.1",
