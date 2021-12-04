@@ -33,6 +33,7 @@ import { environment } from '../environments/environment';
     AngularFireDatabaseModule,
     AngularFireAuthModule,
     AngularFireStorageModule,
+   
   ],
   providers: [
     StatusBar,

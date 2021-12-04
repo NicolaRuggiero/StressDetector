@@ -12,12 +12,12 @@ import { AngularFireDatabase} from '@angular/fire/compat/database';
   providedIn: 'root'
 })
 export class HomeService {
-    valueSensors: ValueSensors;
+    
     age: number;
     saturation: any;
     heartRate:any;
     size : any;
-    item: Observable<any>
+    items: Observable<any[]>;
     constructor(private httpClient: HttpClient, public modalController: ModalController, public storage: Storage, private db: AngularFireDatabase) { };
 
 
@@ -39,22 +39,24 @@ export class HomeService {
 
   fetchData(){
 
-    this.db.object('size/').valueChanges().subscribe(res => {
-        this.size=Number(res);
-      })
+      this.size = this.db.object('size/').valueChanges().subscribe(res => {
+      console.log("this is the size of database:" + String(res));
+        this.size=  String(res);
+      });
 
-     this.size = String(this.size);
-     console.log("this is the size of database:" + this.size);
+      this.size = String(this.size);
+      console.log(this.size);
 
-     this.db.object('saturation/' + this.size + '/Data').valueChanges().subscribe(res => {
+       this.db.object('saturation/' + this.size + '/Data').valueChanges().subscribe(res => {
+         console.log("saturation: " + String(res));
         this.saturation=Number(res);
       })
       this.db.object('heartRate/' + this.size + '/Data').valueChanges().subscribe(res => {
+        console.log("heartRate: " + String(res));
         this.heartRate=Number(res);
       })
-          ;
-          this.valueSensors.saturation= this.saturation;
-          this.valueSensors.heartRate = this.heartRate;
+          
+          
     }
 
 
@@ -63,8 +65,8 @@ export class HomeService {
             component: HomeModalComponent,
             cssClass: 'my-custom-class',
             componentProps: {
-                'saturation': this.valueSensors.saturation,
-                'heartRate': this.valueSensors.heartRate,
+                'saturation': this.saturation,
+                'heartRate': this.heartRate,
                 'age': this.age,
 
             }
