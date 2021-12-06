@@ -20,7 +20,7 @@ export class HomePage {
   }
 
   getDataSensors(){
-      this.homeService.fetchData();
+      
       this.homeService.presentModal();
       this.homeService.setAge(this.age);
     }

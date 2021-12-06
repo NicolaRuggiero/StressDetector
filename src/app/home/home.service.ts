@@ -38,7 +38,7 @@ export class HomeService {
 
 
   fetchData(){
-
+    
       this.size = this.db.object('size/').valueChanges().subscribe(res => {
       console.log("this is the size of database:" + String(res));
         this.size=  String(res);
@@ -65,8 +65,6 @@ export class HomeService {
             component: HomeModalComponent,
             cssClass: 'my-custom-class',
             componentProps: {
-                'saturation': this.saturation,
-                'heartRate': this.heartRate,
                 'age': this.age,
 
             }
