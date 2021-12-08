@@ -22,9 +22,8 @@ export class HistoryService {
     this.item = this.db.object('size/').valueChanges().subscribe((res: string) => {
       this.size=res.valueOf();
       console.log(res.valueOf());
-      })
-      console.log(this.size);
-      console.log(this.item.value);
+    })
+   
    }
 
   
@@ -32,17 +31,13 @@ export class HistoryService {
 
    getSaturation() {
     
-     for( var i =0 ; i< Number(this.size); i++) {
-    this.saturation[i] = this.db.object('saturation/' + String(i) + '/Data').valueChanges().subscribe(res => {
-      this.saturation[i]=Number(res);
-    })
-    console.log(this.saturation[i]);
-  }
-   
- }
+     
+    this.item = this.db.list('saturation/' ).valueChanges().subscribe(res => {
+      
+      console.log(res);
+      console.log (Object.values(res[0]));
 
-   plotSimpleBarChart() {
-    let myChart = HighCharts.chart('highcharts', {
+      let myChart = HighCharts.chart('highcharts', {
       chart: {
         type: 'line'
       },
@@ -61,7 +56,7 @@ export class HistoryService {
         {
           name: 'saturation',
           type: undefined,
-          data: [this.saturation]
+          data: [Object.values(res[0]), Object.values(res[1]), Object.values(res[2])]
         },
         {
           name: 'heartrate',
@@ -69,10 +64,16 @@ export class HistoryService {
           data: [5, 7, 3]
         }]
     });
-  }
-
   
- }   
+    })
+    
+  
+   
+ }
+ }
+
+   
+    
 
 
 
