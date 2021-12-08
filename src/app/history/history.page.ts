@@ -27,8 +27,8 @@ export class HistoryPage implements OnInit {
 ionViewDidEnter() {
   
 
-      this.historyService.fetchSize().subscribe();
-      this.historyService.fetchSaturation();
+      this.historyService.fetchSize();
+      this.historyService.getSaturation();
       this.historyService.plotSimpleBarChart();
   }
 

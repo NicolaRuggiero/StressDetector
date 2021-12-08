@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import * as HighCharts from 'highcharts';
 import { HttpClient } from '@angular/common/http';
 import {map , tap} from 'rxjs/operators';
+import { AngularFireDatabase, AngularFireObject} from '@angular/fire/compat/database';
+import { Observable } from '@firebase/util';
+
 
 
 @Injectable({
@@ -9,36 +12,34 @@ import {map , tap} from 'rxjs/operators';
 })
 export class HistoryService {
 
-  size : number;
-  saturation :number [];
+  size : string;
+  saturation :any [];
+  item : any;
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient, private db: AngularFireDatabase) { }
   
   fetchSize(){
-	    return this.httpClient.get("https://neptune-ad095.firebaseio.com/size.json")
-     .pipe(tap(resData => {
-     this.size = (Number(resData));
-     console.log(this.size);
-     }));
-     
-  }
-
-  fetchSaturation(){
+    this.item = this.db.object('size/').valueChanges().subscribe((res: string) => {
+      this.size=res.valueOf();
+      console.log(res.valueOf());
+      })
       console.log(this.size);
-      for(let i =0 ; i< this.size; i++){
-       this.getSaturation(i).subscribe();
-    }
-     
+      console.log(this.item.value);
    }
 
-   getSaturation(i:number){
+  
+   
 
-    return this.httpClient.get("https://neptune-ad095.firebaseio.com/saturation/" + String(i) + "/Data.json")
-      .pipe(tap(resData => {
-      this.saturation[i] = (Number(resData));
-      console.log(this.saturation[i]);
-      }));
-   }
+   getSaturation() {
+    
+     for( var i =0 ; i< Number(this.size); i++) {
+    this.saturation[i] = this.db.object('saturation/' + String(i) + '/Data').valueChanges().subscribe(res => {
+      this.saturation[i]=Number(res);
+    })
+    console.log(this.saturation[i]);
+  }
+   
+ }
 
    plotSimpleBarChart() {
     let myChart = HighCharts.chart('highcharts', {
@@ -72,5 +73,7 @@ export class HistoryService {
 
   
  }   
+
+
 
 
