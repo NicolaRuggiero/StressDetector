@@ -37,12 +37,14 @@ export class HistoryService {
       console.log(res);
       console.log (Object.values(res[0]));
 
-      let myChart = HighCharts.chart('highcharts', {
+      let myChart = HighCharts.chart('chartSaturation', {
       chart: {
+        borderColor: '#EBBA95',
+        backgroundColor: 'grey',
         type: 'line'
       },
       title: {
-        text: 'Saturation and heartrate history'
+        text: 'Saturation  history'
       },
       xAxis: {
         
@@ -57,11 +59,6 @@ export class HistoryService {
           name: 'saturation',
           type: undefined,
           data: [Object.values(res[0]), Object.values(res[1]), Object.values(res[2])]
-        },
-        {
-          name: 'heartrate',
-          type: undefined,
-          data: [5, 7, 3]
         }]
     });
   
@@ -70,6 +67,48 @@ export class HistoryService {
   
    
  }
+
+ getHeartRate() {
+    
+     
+  this.item = this.db.list('heartRate/' ).valueChanges().subscribe(res => {
+    
+    console.log(res);
+    console.log (Object.values(res[0]));
+
+    let myChart = HighCharts.chart('chartHeartRate', {
+    chart: {
+      borderColor: '#EBBA95',
+      backgroundColor: 'grey',
+      type: 'line'
+    },
+    title: {
+      text: ' HeartRate history'
+    },
+    xAxis: {
+      
+    },
+    yAxis: {
+      title: {
+        text: ''
+      }
+    },
+    series: [
+      {
+        name: 'heartRate',
+        type: undefined,
+        data: [Object.values(res[0]), Object.values(res[1]), Object.values(res[2])]
+      }]
+  });
+
+  })
+  
+
+ 
+}
+
+
+
  }
 
    

@@ -29,6 +29,7 @@ ionViewDidEnter() {
 
       this.historyService.fetchSize();
       this.historyService.getSaturation();
+      this.historyService.getHeartRate();
       
   }
 
