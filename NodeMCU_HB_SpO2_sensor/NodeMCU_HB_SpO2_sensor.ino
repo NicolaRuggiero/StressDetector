@@ -268,7 +268,7 @@ void loop()
   timeClient.update();
   unsigned long epochTime = timeClient.getEpochTime(); //get the seconds from 1 Jan. 1970
   char buffer[30] = {"\0"};                            //initialize char buffer that will contain the converted UTC time
-  struct tm *timeinfo = gmtime(&epochTime);
+  struct tm *timeinfo = gmtime((time_t*)&epochTime);
   strftime(buffer, 30, "%F-%T%z", timeinfo);
 
   String firebase_date(buffer);
@@ -421,6 +421,8 @@ void loop()
 
     json1.set("Data", dataHR);
     json2.set("Data", dataSpO2);
+    json1.set("timestamp", firebase_date);
+    json2.set("timestamp", firebase_date);
 
     if (Firebase.updateNode(fbdo, "heartRate/" + String(currentSize_firebase + 1), json1))
     {
