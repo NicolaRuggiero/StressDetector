@@ -48,8 +48,6 @@ int8_t validHeartRate; //indicator to show if the heart rate calculation is vali
 
 // WiFi settings and variables
 
-ESP8266WebServer server(80); // instantiate server at port 80 (http port)
-
 // Set your Static IP address
 /*IPAddress local_IP(192, 168, 1, 134);
 
@@ -237,13 +235,6 @@ void setup()
   Serial.println(WIFI_SSID);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-  server.on("/", []()
-            {
-              page = "<h1>Sensor to Node MCU Web Server</h1><h3>Data:</h3> <h4>HeartRate: " + String(dataHR) + " bpm</h4> <h4>Saturation: " + String(dataSpO2) + "%</h4>";
-              server.send(200, "text/html", page);
-            });
-
-  server.begin();
   Serial.println("Web server started!");
 
   Serial.println("Initializing...");
@@ -378,7 +369,6 @@ void loop()
   Serial.println();
   dataHR = heartRate;
   dataSpO2 = spo2;
-  server.handleClient();
 
   Sensors_polling sensors_value = {spo2, dataHR, firebase_date};
 
