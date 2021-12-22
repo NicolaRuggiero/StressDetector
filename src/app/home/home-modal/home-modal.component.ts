@@ -19,8 +19,12 @@ export class HomeModalComponent implements OnInit {
     messageSaturation: string;
     constructor(private http: HttpClient, private db: AngularFireDatabase) { }
 
-    ngOnInit() {
+     sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+         }
 
+   async ngOnInit() {
+         await this.sleep(2000);
          this.size =  this.db.object('size/').valueChanges().subscribe(res => {
          console.log("this is the size of database:" + String(res));
          this.size=  String(res);

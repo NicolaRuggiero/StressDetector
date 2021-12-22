@@ -12,7 +12,7 @@ import { Observable } from '@firebase/util';
 })
 export class HistoryService {
 
-  size : string;
+  size : string[];
   saturation :any [];
   item : any;
 
@@ -20,8 +20,9 @@ export class HistoryService {
   
   fetchSize(){
     this.item = this.db.object('size/').valueChanges().subscribe((res: string) => {
-      this.size=res.valueOf();
-      console.log(res.valueOf());
+
+      this.size = Object.values(res);
+      
     })
    
    }
@@ -33,10 +34,10 @@ export class HistoryService {
     
      
     this.item = this.db.list('saturation/' ).valueChanges().subscribe(res => {
+      console.log("size:");
+      console.log(this.size);
+      console.log(Object.values(res[0])[0]);
       
-      console.log(res);
-      console.log (Object.values(res[0]));
-
       let myChart = HighCharts.chart('chartSaturation', {
       chart: {
         borderColor: '#EBBA95',
@@ -58,7 +59,7 @@ export class HistoryService {
         {
           name: 'saturation',
           type: undefined,
-          data: [Object.values(res[0]), Object.values(res[1]), Object.values(res[2])]
+          data: [Object.values(res[10]), Object.values(res[9]), Object.values(res[8])]
         }]
     });
   
