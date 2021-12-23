@@ -48,7 +48,8 @@ export class HistoryService {
         text: 'Saturation  history'
       },
       xAxis: {
-        
+        categories: [Object.values(res[8])[1], Object.values(res[9])[1], Object.values(res[10])[1]]
+
       },
       yAxis: {
         title: {
@@ -59,7 +60,7 @@ export class HistoryService {
         {
           name: 'saturation',
           type: undefined,
-          data: [Object.values(res[10]), Object.values(res[9]), Object.values(res[8])]
+          data: [Object.values(res[10])[0], Object.values(res[9])[0], Object.values(res[8])[0]]
         }]
     });
   
@@ -87,7 +88,8 @@ export class HistoryService {
       text: ' HeartRate history'
     },
     xAxis: {
-      
+      categories: [Object.values(res[8])[1], Object.values(res[9])[1], Object.values(res[10])[1]]
+
     },
     yAxis: {
       title: {
