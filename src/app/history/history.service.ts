@@ -48,7 +48,7 @@ export class HistoryService {
         text: 'Saturation  history'
       },
       xAxis: {
-        categories: [Object.values(res[8])[1], Object.values(res[9])[1], Object.values(res[10])[1]]
+        categories: [Object.values(res[res.length-1])[1], Object.values(res[res.length-2])[1], Object.values(res[res.length-3])[1], Object.values(res[res.length-4])[1], Object.values(res[res.length-5])[1], Object.values(res[res.length-6])[1],Object.values(res[res.length-7])[1], Object.values(res[res.length-8])[1], Object.values(res[res.length-9])[1], Object.values(res[res.length-10])[1]]
 
       },
       yAxis: {
@@ -60,7 +60,7 @@ export class HistoryService {
         {
           name: 'saturation',
           type: undefined,
-          data: [Object.values(res[10])[0], Object.values(res[9])[0], Object.values(res[8])[0]]
+          data: [Object.values(res[res.length-1])[0], Object.values(res[res.length-2])[0], Object.values(res[res.length-3])[0], Object.values(res[res.length-4])[0], Object.values(res[res.length-5])[0], Object.values(res[res.length-6])[0],Object.values(res[res.length-7])[0], Object.values(res[res.length-8])[0], Object.values(res[res.length-9])[0], Object.values(res[res.length-10])[0]]
         }]
     });
   
@@ -88,7 +88,7 @@ export class HistoryService {
       text: ' HeartRate history'
     },
     xAxis: {
-      categories: [Object.values(res[8])[1], Object.values(res[9])[1], Object.values(res[10])[1]]
+      categories: [Object.values(res[res.length-1])[1], Object.values(res[res.length-2])[1], Object.values(res[res.length-3])[1], Object.values(res[res.length-4])[1], Object.values(res[res.length-5])[1], Object.values(res[res.length-6])[1],Object.values(res[res.length-7])[1], Object.values(res[res.length-8])[1], Object.values(res[res.length-9])[1], Object.values(res[res.length-10])[1]]
 
     },
     yAxis: {
@@ -100,7 +100,7 @@ export class HistoryService {
       {
         name: 'heartRate',
         type: undefined,
-        data: [Object.values(res[0]), Object.values(res[1]), Object.values(res[2])]
+        data: [Object.values(res[res.length-1])[0], Object.values(res[res.length-2])[0], Object.values(res[res.length-3])[0], Object.values(res[res.length-4])[0], Object.values(res[res.length-5])[0], Object.values(res[res.length-6])[0],Object.values(res[res.length-7])[0], Object.values(res[res.length-8])[0], Object.values(res[res.length-9])[0], Object.values(res[res.length-10])[0]]
       }]
   });
 
