@@ -37,35 +37,35 @@ export class HomeModalComponent implements OnInit {
          this.heartRate=Number(res);
 
          if (Number(this.saturation) >= 94) {
-              this.messageSaturation = "La tua saturazione � ottimale "
+              this.messageSaturation = "La tua saturazione � ottimale "
              }
 
             if (this.age == 1 && Number(this.heartRate) <= 90) {
-            this.messageBPM = "Per i  neonati di eta fino a 12 mesi, � considerato accettabile un battito cardiaco compreso tra i 90 e i 160 bpm. I bpm dell'ultimo test risultano inferiori, ti consigliamo quindi di sottoporre il soggeto a un controllo medico. "
+            this.messageBPM = "Per i  neonati di età fino a 12 mesi, é considerato accettabile un battito cardiaco compreso tra i 90 e i 160 bpm. I bpm dell'ultimo test risultano inferiori, ti consigliamo quindi di sottoporre il soggeto a un controllo medico. "
              }
     
              if (this.age <= 8 && this.age > 1 && Number(this.heartRate) <= 70) {
-              this.messageBPM = "Per i bambini di era compresa tra 1 e 8 anni � considerato in salute un battito cardiaco compreso tra i 70 e i 110 bpm. Il tuo ultimo test ha mostrato un battito pi� lento rispetto alla norma, ti consigliamo di chiamare un genitore e di avvertire il tuo dottore. "
+              this.messageBPM = "Per i bambini di età compresa tra 1 e 8 anni, é considerato in salute un battito cardiaco compreso tra i 70 e i 110 bpm. Il tuo ultimo test ha mostrato un battito più lento rispetto alla norma, ti consigliamo di chiamare un genitore e di avvertire il tuo dottore. "
             }
 
             if (this.age <= 8 && this.age > 1 && Number(this.heartRate) >= 110) {
-                this.messageBPM = "Il tuo battito cardiaco risulta accellerato, potrebbe essere dovuto a attivit� motoria o a eccitazione, ti consigliamo comunque di dirlo a un tuo genitore e di avvertire il tuo dottore. "
+                this.messageBPM = "Il tuo battito cardiaco risulta accellerato, potrebbe essere dovuto a attività motoria o a eccitazione, ti consigliamo comunque di dirlo a un tuo genitore e di avvertire il tuo dottore. "
             }
 
             if (this.age > 8  && Number(this.heartRate) <= 60) {
-                this.messageBPM = "Il tuo battito cardiaco risulta piu lento della norma. Per un individuo adulto, di eta compresa tra gli 8 e i 65 anni si considera un battito regolare compreso quello compreso tra i 60 e i 90 bpm. Ti consigliamo di consultare il tuo medico curante"
+                this.messageBPM = "Il tuo battito cardiaco risulta più lento della norma. Per un individuo adulto, di età compresa tra gli 8 e i 65 anni, si considera un battito regolare  compreso tra i 60 e i 90 bpm. Ti consigliamo di consultare il tuo medico curante"
             }
 
             if (this.age > 8  && Number(this.heartRate) >= 110){
-                this.messageBPM = "Il tuo battito cardiaco risulta piu accellerato della norma, potrebbe essere tuttavia dovuto a una situazione momentanea di ansia, paura, eccitazione ecc... ecc.. oppure all'attivita motoria recente. Se non rientri in questi casi, ti consigliamo di consultare il tuo medico curante "
+                this.messageBPM = "Il tuo battito cardiaco risulta più accellerato della norma, potrebbe essere tuttavia dovuto a una situazione momentanea di ansia, paura, eccitazione ecc... ecc.. oppure ad un'attività motoria recente. Se non rientri in questi casi, ti consigliamo di consultare il tuo medico curante "
             }
 
             if (Number(this.saturation) <= 90) {
-                this.messageSaturation = "La tua saturazione � pericolosamente bassa, ti consigliamo di chiamare subito qualcuno e di farti portare a fare un controllo medico"
+                this.messageSaturation = "La tua saturazione è pericolosamente bassa, ti consigliamo di chiamare subito qualcuno e di farti portare a fare un controllo medico"
             }
 
             if (Number(this.saturation) > 90 && Number(this.saturation) < 94) {
-                this.messageSaturation = "La tua saturazione risulta leggermente bassa. Potrebbe essere tuttavia solo una situazione momentanea e di bassa gravita. Se tali valori si ripetono spesso mantenendo un valore inferiore a 94, ti consigliamo di consultare il tuo medico curante"
+                this.messageSaturation = "La tua saturazione risulta leggermente bassa. Potrebbe essere tuttavia solo una situazione momentanea e di bassa gravità. Se tali valori si ripetono spesso mantenendo un valore inferiore a 94, ti consigliamo di consultare il tuo medico curante"
             }
           })
 
