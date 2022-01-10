@@ -41,7 +41,7 @@ export class HistoryService {
       let myChart = HighCharts.chart('chartSaturation', {
       chart: {
         borderColor: '#EBBA95',
-        backgroundColor: 'grey',
+        //backgroundColor: 'grey',
         type: 'line'
       },
       title: {

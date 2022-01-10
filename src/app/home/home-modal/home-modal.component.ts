@@ -23,8 +23,16 @@ export class HomeModalComponent implements OnInit {
             return new Promise(resolve => setTimeout(resolve, ms));
          }
 
-   async ngOnInit() {
-         await this.sleep(2000);
+      async ngOnInit() {
+          
+         this.http.put("https://neptune-ad095.firebaseio.com/using.json", 1, {})
+            .subscribe(data => {
+                console.log(data);
+            }, error => {
+                console.log(error);
+            });    
+
+          await this.sleep(20000);
          this.size =  this.db.object('size/').valueChanges().subscribe(res => {
          console.log("this is the size of database:" + String(res));
          this.size=  String(res);
@@ -37,7 +45,7 @@ export class HomeModalComponent implements OnInit {
          this.heartRate=Number(res);
 
          if (Number(this.saturation) >= 94) {
-              this.messageSaturation = "La tua saturazione � ottimale "
+              this.messageSaturation = "La tua saturazione è ottimale "
              }
 
             if (this.age == 1 && Number(this.heartRate) <= 90) {
@@ -73,7 +81,7 @@ export class HomeModalComponent implements OnInit {
 
         
 
-            return this.http.put("https://neptune-ad095.firebaseio.com/using.json", 1, {})
+             this.http.put("https://neptune-ad095.firebaseio.com/using.json", 0, {})
             .subscribe(data => {
                 console.log(data);
             }, error => {
