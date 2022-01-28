@@ -14,25 +14,52 @@ export class HomeModalComponent implements OnInit {
      saturation: any;
      heartRate: any;
      size : any;
+     barLoader : boolean;
+     value : number;
     @Input() age: number;
     messageBPM: string;
     messageSaturation: string;
     constructor(private http: HttpClient, private db: AngularFireDatabase) { }
+     
+    showProgressBar() {
+        this.barLoader = true;
+      }
+    
+      hideProgressBar() {
+        this.barLoader = false;
+      }
+
+      addPbar(i) {
+        setTimeout(() => {
+          let apc = (i / 100)
+          this.value = apc;
+        }, 30 * i);
+      }
+    
+      initeProgressBar() {
+        this.showProgressBar()
+        for (let index = 0; index <= 100; index++) {
+          this.addPbar(+index);
+        }
+      }    
 
      sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
          }
 
       async ngOnInit() {
-          
+         this.showProgressBar();
          this.http.put("https://neptune-ad095.firebaseio.com/using.json", 1, {})
             .subscribe(data => {
                 console.log(data);
             }, error => {
                 console.log(error);
             });    
-
+          
           await this.sleep(20000);
+          
+          
+          
          this.size =  this.db.object('size/').valueChanges().subscribe(res => {
          console.log("this is the size of database:" + String(res));
          this.size=  String(res);
@@ -89,6 +116,8 @@ export class HomeModalComponent implements OnInit {
             });
     
       });
+
+      this.hideProgressBar();
  }
 
       

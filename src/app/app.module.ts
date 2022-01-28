@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { HomeModalComponent } from './home/home-modal/home-modal.component';
 
 
 
@@ -20,9 +21,10 @@ import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { AngularFireStorageModule } from '@angular/fire/compat/storage';
 import { AngularFireModule} from '@angular/fire/compat'
 import { environment } from '../environments/environment';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, HomeModalComponent],
   entryComponents: [],
   imports: [BrowserModule,
   HttpClientModule, 
@@ -33,6 +35,7 @@ import { environment } from '../environments/environment';
     AngularFireDatabaseModule,
     AngularFireAuthModule,
     AngularFireStorageModule,
+    CommonModule
    
   ],
   providers: [
