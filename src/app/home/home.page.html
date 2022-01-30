@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color = "primary">
+  <ion-toolbar color = "secondary">
     <ion-title >Pulse oxymeter</ion-title>
     <ion-buttons slot="start">
       <ion-button [routerLink]="['/history']" >History</ion-button>
@@ -10,17 +10,48 @@
     <ion-grid>
       <ion-row>
         <ion-col size-md= "6" offset-md= "3">
-          <ion-card>
+          <ion-card color = "secondary">
               <ion-card-header>
                   <ion-label>Inserisci la tua eta :</ion-label>
                   <ion-input type="number" [(ngModel)]="age" text-right id="input" placeholder ="10 , 20 , 30 ... "></ion-input>
               </ion-card-header>
-            <ion-item>
-   
+            <ion-item color = "secondary">
+                Istruzioni per l' uso: accendere il dispositivo, appoggiare un dito sul sensore, e poi premere il tasto START . Attendere 20-25 secondi per la misurazione di frequenza cardiaca e saturazione.
             </ion-item>
           </ion-card>
         </ion-col>
       </ion-row>
     </ion-grid>
-    <ion-button expand = "full" (click) = "getDataSensors()" >Start</ion-button>
+    <ion-button color = "secondary" expand = "full" (click) = "getDataSensors()"  >Start</ion-button>
   </ion-content>
+    
+    <ion-list-header color = "tertiary" >Link utili</ion-list-header>  
+
+   <ion-item color = "tertiary">
+    <ion-label>
+       - Frequenza cardiaca (https://it.wikipedia.org/wiki/Frequenza_cardiaca)
+    </ion-label>
+    <ion-reorder slot="end"></ion-reorder>
+  </ion-item>
+
+   <ion-item color = "tertiary">
+    <ion-label>
+      - Saturazione (https://it.wikipedia.org/wiki/Saturazione_arteriosa_dell%27ossigeno)
+    </ion-label>
+    <ion-reorder slot="end"></ion-reorder>
+  </ion-item>
+
+   <ion-item color = "tertiary">
+    <ion-label>
+     - Ministero della Salute (https://www.salute.gov.it/)
+    </ion-label>
+    <ion-reorder slot="end"></ion-reorder>
+  </ion-item>
+
+
+  
+  <ion-footer >
+  <ion-toolbar color = "tertiary">
+    <ion-title></ion-title>
+  </ion-toolbar>
+</ion-footer>

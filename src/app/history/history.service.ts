@@ -41,6 +41,7 @@ export class HistoryService {
       let myChart = HighCharts.chart('chartSaturation', {
       chart: {
         borderColor: '#EBBA95',
+        
         //backgroundColor: 'grey',
         type: 'line'
       },
@@ -58,6 +59,7 @@ export class HistoryService {
       },
       series: [
         {
+          color: '#49D9F2',
           name: 'saturation',
           type: undefined,
           data: [Object.values(res[res.length-1])[0], Object.values(res[res.length-2])[0], Object.values(res[res.length-3])[0], Object.values(res[res.length-4])[0], Object.values(res[res.length-5])[0], Object.values(res[res.length-6])[0],Object.values(res[res.length-7])[0], Object.values(res[res.length-8])[0], Object.values(res[res.length-9])[0], Object.values(res[res.length-10])[0]]
@@ -81,7 +83,8 @@ export class HistoryService {
     let myChart = HighCharts.chart('chartHeartRate', {
     chart: {
       borderColor: '#EBBA95',
-      backgroundColor: 'grey',
+       
+      //backgroundColor: 'grey',
       type: 'line'
     },
     title: {
@@ -98,6 +101,7 @@ export class HistoryService {
     },
     series: [
       {
+        color: '#49D9F2',
         name: 'heartRate',
         type: undefined,
         data: [Object.values(res[res.length-1])[0], Object.values(res[res.length-2])[0], Object.values(res[res.length-3])[0], Object.values(res[res.length-4])[0], Object.values(res[res.length-5])[0], Object.values(res[res.length-6])[0],Object.values(res[res.length-7])[0], Object.values(res[res.length-8])[0], Object.values(res[res.length-9])[0], Object.values(res[res.length-10])[0]]
