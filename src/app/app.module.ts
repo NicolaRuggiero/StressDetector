@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import {Deeplinks} from '@ionic-native/deeplinks/ngx';
 import { HomeModalComponent } from './home/home-modal/home-modal.component';
 
 
@@ -42,6 +43,7 @@ import { CommonModule } from '@angular/common';
     StatusBar,
     SplashScreen,
     HomeService,
+    Deeplinks,
     
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],

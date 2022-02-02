@@ -24,4 +24,12 @@ export class HomePage {
       this.homeService.presentModal();
       this.homeService.setAge(this.age);
     }
+
+   openUrl1(){ window.open('https://it.wikipedia.org/wiki/Saturazione_arteriosa_dell%27ossigeno', '_system'); }
+   openUrl2(){ window.open('https://it.wikipedia.org/wiki/Frequenza_cardiaca', '_system'); }
+   openUrl3(){ window.open('https://www.salute.gov.it/', '_system'); }
+
+   
+
+   
 }

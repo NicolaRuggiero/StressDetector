@@ -28,23 +28,20 @@
     <ion-list-header color = "tertiary" >Link utili</ion-list-header>  
 
    <ion-item color = "tertiary">
-    <ion-label>
-       - Frequenza cardiaca (https://it.wikipedia.org/wiki/Frequenza_cardiaca)
-    </ion-label>
+    <button ion-button (click)="openUrl2()">Frequenza cardiaca</button>
     <ion-reorder slot="end"></ion-reorder>
   </ion-item>
 
    <ion-item color = "tertiary">
-    <ion-label>
-      - Saturazione (https://it.wikipedia.org/wiki/Saturazione_arteriosa_dell%27ossigeno)
-    </ion-label>
+    
+      
+      <button ion-button (click)="openUrl1()">Saturazione</button>
+    
     <ion-reorder slot="end"></ion-reorder>
   </ion-item>
 
    <ion-item color = "tertiary">
-    <ion-label>
-     - Ministero della Salute (https://www.salute.gov.it/)
-    </ion-label>
+   <button ion-button color = "tertiary" background-color = 'tertiary' (click)="openUrl3()">Ministero della salute</button>
     <ion-reorder slot="end"></ion-reorder>
   </ion-item>
 
