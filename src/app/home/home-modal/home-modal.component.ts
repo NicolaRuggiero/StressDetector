@@ -16,6 +16,7 @@ export class HomeModalComponent implements OnInit {
      size : any;
      barLoader : boolean;
      value : number;
+     currentDate : any;
     @Input() age: number;
     messageBPM: string;
     messageSaturation: string;
@@ -58,14 +59,16 @@ export class HomeModalComponent implements OnInit {
           
           await this.sleep(20000);
           
-          
+          this.currentDate = new Date();
+          console.log(this.currentDate);
           
          this.size =  this.db.object('size/').valueChanges().subscribe(res => {
          console.log("this is the size of database:" + String(res));
          this.size=  String(res);
-         this.saturation =  this.db.object('saturation/' + this.size + '/Data').valueChanges().subscribe(res => {
-         console.log("saturation: " + String(res));
-         this.saturation=Number(res);
+         this.saturation =  this.db.list('saturation/' + this.size ).valueChanges().subscribe(res => {
+         console.log("saturation: " + String(res[0]));
+         console.log("timestamp:" + String(res[1]))
+         this.saturation=Number(res[0]);
          })
          this.heartRate =  this.db.object('heartRate/' + this.size + '/Data').valueChanges().subscribe(res => {
          console.log("heartRate: " + String(res));
