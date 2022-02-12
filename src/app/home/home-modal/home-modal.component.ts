@@ -57,17 +57,29 @@ export class HomeModalComponent implements OnInit {
                 console.log(error);
             });    
           
-          await this.sleep(20000);
+          await this.sleep(5000);
           
           this.currentDate = new Date();
-          console.log(this.currentDate);
+          console.log("currentDate month:" + this.currentDate.getMonth());
           
          this.size =  this.db.object('size/').valueChanges().subscribe(res => {
          console.log("this is the size of database:" + String(res));
          this.size=  String(res);
          this.saturation =  this.db.list('saturation/' + this.size ).valueChanges().subscribe(res => {
+
          console.log("saturation: " + String(res[0]));
-         console.log("timestamp:" + String(res[1]))
+         console.log("Full FirebaseDate: " + String(res[1]));
+
+         if(Number(String(res[1]).substring(0,4)) < Number(this.currentDate.getFullYear()) ){
+          console.log("early year");
+          this.sleep(20000);
+          
+         }else if(Number(String(res[1]).substring(5,7)) < Number(this.currentDate.getMonth() + 1)){
+          console.log("early month");
+          this.sleep(20000); 
+          console.log("timestamp, month:" + String(res[1]).substring(5,7));  
+
+         }
          this.saturation=Number(res[0]);
          })
          this.heartRate =  this.db.object('heartRate/' + this.size + '/Data').valueChanges().subscribe(res => {
@@ -113,7 +125,7 @@ export class HomeModalComponent implements OnInit {
 
              this.http.put("https://neptune-ad095.firebaseio.com/using.json", 0, {})
             .subscribe(data => {
-                console.log(data);
+                console.log("using:" +data);
             }, error => {
                 console.log(error);
             });
