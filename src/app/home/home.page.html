@@ -16,7 +16,10 @@
                   <ion-input type="number" [(ngModel)]="age" text-right id="input" placeholder ="10 , 20 , 30 ... "></ion-input>
               </ion-card-header>
             <ion-item color = "secondary">
-                Istruzioni per l' uso: accendere il dispositivo, appoggiare un dito sul sensore, e poi premere il tasto START . Attendere 20-25 secondi per la misurazione di frequenza cardiaca e saturazione.
+                Istruzioni per l' uso: accendere il dispositivo, appoggiare un dito sul sensore, premere il tasto START e attendere la comparsa dei risultati .
+            </ion-item>
+            <ion-item color = "secondary">
+            ATTENZIONE : non allontanare mai il dito fino alla fine del caricamento (tempo di attesa circa 20-25 secondi).
             </ion-item>
           </ion-card>
         </ion-col>
@@ -45,7 +48,7 @@
     <ion-reorder slot="end"></ion-reorder>
   </ion-item>
 
-
+ 
   
   <ion-footer >
   <ion-toolbar color = "tertiary">

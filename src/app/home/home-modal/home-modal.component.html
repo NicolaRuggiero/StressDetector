@@ -11,19 +11,24 @@
                         
                     
                     <ion-item id="saturation" >
-                        saturation : {{saturation}}
+                        saturation : {{saturation}}%
                         <ion-spinner name="crescent" *ngIf="barLoader" class="spin"></ion-spinner>
 
                     </ion-item>
                     
                     <ion-item id="heartRate" >
-                        heart rate : {{heartRate}}
+                        heart rate : {{heartRate}} bpm
                         <ion-spinner name="crescent" *ngIf="barLoader" class="spin"></ion-spinner>
+                    </ion-item>
+                    <ion-item>
+                        <ion-text color ="primary " >
+                           Misurato il : {{date}}
+                        </ion-text>
                     </ion-item>
                 </ion-card>
                 <ion-card>
                     <ion-item>
-                        <ion-text color ="primary " >
+                        <ion-text color ="secondary " >
                             {{messageBPM}}
                         </ion-text>
                     </ion-item>
@@ -41,5 +46,5 @@
         </ion-row>
        
     </ion-grid>
-   
+  <ion-button (click) = "close()"> back </ion-button>
 </ion-content>

@@ -29,7 +29,9 @@ export class HomePage {
    openUrl2(){ window.open('https://it.wikipedia.org/wiki/Frequenza_cardiaca', '_system'); }
    openUrl3(){ window.open('https://www.salute.gov.it/', '_system'); }
 
-   
+  closeModal(){
+        this.homeService.closeModal();
+  }
 
    
 }

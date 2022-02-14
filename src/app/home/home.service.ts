@@ -71,4 +71,10 @@ export class HomeService {
         });
         return await modal.present();
     }
+    
+    
+    closeModal() {
+    this.modalController.dismiss();
+}
+
 }
